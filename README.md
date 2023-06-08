@@ -1,5 +1,7 @@
 # Deep-Learning-finance
-Using deep learning to implement a stock/bond picking portfolio optimization 
+Using deep learning our purpose will be to implement a stock/bond picking portfolio optimization.
+
+## PART 1 : Implementing a neural_network algorithm and testing it
 
 ### Neural Network Implementation using Dense Layers and Activation Functions
 
