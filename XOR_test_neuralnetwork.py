@@ -1,45 +1,45 @@
 import numpy as np
 import os
-nouveau_chemin = r"V:\Rostane\Deep Learning"
-os.chdir(nouveau_chemin)
-from first_perceptron import neural_network, Dense, Tanh
+new_path = r"V:\Rostane\Deep Learning"
+os.chdir(new_path)
+from first_perceptron import NeuralNetwork, Dense, Tanh
 import matplotlib.pyplot as plt
 
-def format_predict(pred): # On ajoute cette fonction pour adapter le format des predictions
+def format_predict(pred): # Add this function to adapt the format of predictions
     new_pred = []
-    for i in pred :
+    for i in pred:
         elt = 0 if i[0][0] < 0.5 else 1 
         new_pred.append(elt)
     return new_pred
 
-def XOR(data): # On implémente une fonction simple pour vérifier les resultats
+def XOR(data): # Implement a simple function to verify the results
     results = []
-    for couples in data:
-            results.append(couples[0][0]^couples[1][0]) #l'opérateur ^ correspond au XOR sous python
+    for couple in data:
+        results.append(couple[0][0] ^ couple[1][0]) # The ^ operator corresponds to XOR in Python
     return results
 
 def main():
-    #Pour vérifier que le perceptron que nous avons construit apprend bien, On le fait apprendre sur XOR : le OU exclusif
+    # To verify that the constructed perceptron learns well, we make it learn XOR, the exclusive OR
     errors = []
     X = np.reshape([[0, 0], [0, 1], [1, 0], [1, 1]], (4, 2, 1))
     Y = np.reshape([[0], [1], [1], [0]], (4, 1, 1))
     
-    # Construction du reseau de neuronnes 
-    network = neural_network()
-    network.add(Dense(2,3))
+    # Construct the neural network 
+    network = NeuralNetwork()
+    network.add(Dense(2, 3))
     network.add(Tanh())
-    network.add(Dense(3,1))
+    network.add(Dense(3, 1))
     network.add(Tanh())
     
-    #Apprentissage : 
+    # Training: 
     epochs = 150
     learning_rate = 0.1
     network.train(X, Y, epochs, learning_rate)
     
-    #Prédiction : 
-    Input_data = np.reshape([[0, 0], [0, 1], [1, 0], [1, 1]], (4, 2, 1))
-    pred = network.predict(Input_data)
-    verif = XOR(Input_data.tolist())
-    print(f'\nDonnées : {Input_data.tolist()} \nPrédiction sur vos données : {format_predict(pred)}\nVerification par la fonction XOR : {verif}')
+    # Prediction: 
+    input_data = np.reshape([[0, 0], [0, 1], [1, 0], [1, 1]], (4, 2, 1))
+    pred = network.predict(input_data)
+    verification = XOR(input_data.tolist())
+    print(f'\nData: {input_data.tolist()} \nPredictions on your data: {format_predict(pred)}\nVerification by XOR function: {verification}')
         
 main()

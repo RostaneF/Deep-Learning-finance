@@ -1,82 +1,82 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-""" La création de la classe layer correspond à l'étape 2 du plan proposé, on crée une classe "Layer" qui definit les caractéristiques de bases dont toutes les autres couches hériteront"""
+"""Creating the Layer class corresponds to step 2 of the proposed plan, where we create a "Layer" class that defines the basic characteristics that all other layers will inherit."""
 class Layer:
     def __init__(self):
         self.input = None
         self.output = None
     
-    def forward(self,input):
-        # On définit ici la forward propagation pour obtenir l'output de la couche généré comme fonction image de la donnée d'input
+    def forward(self, input):
+        # Define the forward propagation here to obtain the output of the layer as a function of the input data
         pass
     
-    def backward(self, output_gradient, learning_rate): # Par soucis de simplicité, on considère un Learning rate passé en paramètre pour le moment.
-        # Dans la version suivante, on considerera des optimiseurs pour cette metrique. 
-        # Mettre à jour les paramètres en passant par la descente de gradient
+    def backward(self, output_gradient, learning_rate): # For simplicity, a learning rate is considered as a parameter for now.
+        # In the next version, optimizers will be considered for this metric. 
+        # Update the parameters using gradient descent
         pass
   
-""" Une fois que l'on a créé la classe Layer : On crée la classe des couches denses qui hérite des propriétés fondamentales de la classe mère et que l'on définit comme suit : """
+"""Once we have created the Layer class, we create the Dense layer class that inherits the fundamental properties from the parent class and is defined as follows:"""
 
 class Dense(Layer):
     
-    def __init__(self,input_size,output_size):
-        self.weights = np.random.randn(output_size, input_size) # Matrice de poids de dimensions j x i (voir)
-        self.bias = np.random.randn(output_size, 1) # Vecteur colonne de biais
+    def __init__(self, input_size, output_size):
+        self.weights = np.random.randn(output_size, input_size) # Weight matrix of dimensions j x i (see)
+        self.bias = np.random.randn(output_size, 1) # Column vector of biases
         
-    def forward(self, input): # On définit la forward propagation dans le cadre de la couche dense
-        self.input = input # On associe les inputs que l'on souhaite passer à la donnée de classe de la couche
+    def forward(self, input): # Define the forward propagation for the dense layer
+        self.input = input # Associate the inputs that we want to pass to the layer's class data
         self.output = np.dot(self.weights, self.input) + self.bias
-        return self.output   # On implémente la propagation comme définie : Y = WX + B. à noter qu'on utilise np.dot pour le produit scalaire matriciel
+        return self.output   # Implement the propagation as defined: Y = WX + B. Note that np.dot is used for matrix dot product
     
     def backward(self, output_gradient, learning_rate):
-        # Dans cette methode, on calcule les dérivées de l'erreur par rapport aux poids, au biais ainsi que de l'input. 
-        weights_gradient = np.dot(output_gradient, self.input.T) # dE/dW = dE/dY.dY/dW = dE/dY.X^t 
-        # Par la descente de gradient, on met à jour les paramètres.
-        self.weights -= weights_gradient*learning_rate # w* = w - learning_rate * dE/dW
-        self.bias -= learning_rate*output_gradient # Par le calcul on a obtenu que dE/dB = dE/dY.dY/dB = dE/dY.
-        return np.dot(self.weights.T,output_gradient)  # La backward propagation renvoie le dérviée de l'erreur par rapport à l'input. 
-                                                        # Par le calcul, on a determiné que dE/dX = dE/dY.dY/dX = W^t*dE/dY
+        # In this method, we calculate the derivatives of the error with respect to the weights, biases, and input. 
+        weights_gradient = np.dot(output_gradient, self.input.T) # dE/dW = dE/dY.dY/dW = dE/dY.X^T 
+        # Update the parameters using gradient descent.
+        self.weights -= weights_gradient * learning_rate # w* = w - learning_rate * dE/dW
+        self.bias -= learning_rate * output_gradient # From the calculation, we obtained that dE/dB = dE/dY.dY/dB = dE/dY.
+        return np.dot(self.weights.T, output_gradient)  # The backward propagation returns the derivative of the error with respect to the input. 
+                                                        # By calculation, we determined that dE/dX = dE/dY.dY/dX = W^T*dE/dY
     
-""" Maintenant que nous avons implémenté la classe layer et la classe Dense pour les couches denses, on implémente une classe pour la couche d'activation.""" 
+"""Now that we have implemented the Layer class and the Dense class for dense layers, let's implement a class for the activation layer.""" 
 
 class Activation(Layer):
     def __init__(self, activation, activation_prime): 
         self.activation = activation
         self.activation_prime = activation_prime
     
-    def forward(self, input):  # La forward propagation consiste ici simplement à appliquer à chaque neuronne entrant, la fonction d'activation définie en attribut de classe
+    def forward(self, input):  # The forward propagation here simply applies the activation function defined as a class attribute to each incoming neuron.
         self.input = input
         self.output = self.activation(input)
         return self.output
     
     def backward(self, output_gradient, learning_rate):
-        # On utilise les proprités utiles des outils de numpy 
+        # Use useful properties of numpy tools
         return np.multiply(output_gradient, self.activation_prime(self.input)) # dE/dX = dE/dY(x)f'(X)
     
 
-""" Pour finir, on procède à l'implémentation des fonctions d'activation et metriques d'erreurs (pour estimer l'écart de la sortie par rapport aux objectifs attendus:""" 
+"""Finally, we proceed with the implementation of activation functions and error metrics (to estimate the deviation of the output from the expected targets):""" 
 
 class Tanh(Activation):
     def __init__(self):
         tanh = lambda x: np.tanh(x)
-        tanh_prime = lambda x: 1-np.tanh(x)**2
-        super().__init__(tanh,tanh_prime)
+        tanh_prime = lambda x: 1 - np.tanh(x) ** 2
+        super().__init__(tanh, tanh_prime)
         
-### Définir d'autres fonctions d'activation ici ### 
+### Define other activation functions here ###
 
 ###                                             ###
-        
+
 def mse(y_true, y_pred):
-    return np.mean(np.power(y_true-y_pred, 2))
+    return np.mean(np.power(y_true - y_pred, 2))
 
-def mse_prime(y_true,y_pred):
-    return 2*(y_pred - y_true)/np.size(y_true)
+def mse_prime(y_true, y_pred):
+    return 2 * (y_pred - y_true) / np.size(y_true)
 
 
-### On peut desormais créer un modèle de classe Neural network permettant de générer un réseau de neuronnes en ajoutant des couches, fonctions d'activation.. etc :
+### Now we can create a Neural Network model to generate a network of neurons by adding layers, activation functions, etc.: ###
     
-class neural_network:
+class NeuralNetwork:
     def __init__(self):
         self.layers = []
         
@@ -88,20 +88,20 @@ class neural_network:
     
     def train(self, X_train, Y_train, epochs, learning_rate):
         errors = []
-        # Entrainement du réseau de neuronnes :
+        # Training the neural network:
         for e in range(epochs):
             error = 0
             for x, y in zip(X_train, Y_train): 
                 output = x 
                 for layer in self.layers:
-                    # On fait passer chaque input par chacune des couches du réseau de neuronnes
+                    # Pass each input through each layer of the neural network
                     output = layer.forward(output)
                 
-                #Une fois que nous avons obtenu l'output, on calcule la MSE qui servira d'input à la backward propagation.
-                error+= mse(y, output)
+                # Once we have obtained the output, calculate the MSE, which will be used as an input for the backward propagation.
+                error += mse(y, output)
                 
                 grad = mse_prime(y, output)
-                for layer in reversed(self.layers): # De même que pour la forward Propagation, on fait passer l'output par chacune des couches du reseau dans le sens inverse pour affiner les paramètres
+                for layer in reversed(self.layers): # Similar to forward propagation, pass the output through each layer of the network in reverse order to refine the parameters
                     grad = layer.backward(grad, learning_rate)
             
             error /= len(X_train)
@@ -109,8 +109,8 @@ class neural_network:
             print('%d/%d, error = %f' % (e + 1, epochs, error), f"output = {output}")
         plt.plot(errors)
         plt.xlabel("Epochs")
-        plt.ylabel("Erreur (MSE)")
-        plt.title("Variation de l'erreur au cours l'apprentissage")
+        plt.ylabel("Error (MSE)")
+        plt.title("Variation of Error during Training")
         plt.show()
         return
     
